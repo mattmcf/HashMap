@@ -3,8 +3,8 @@
 
 # Compiler and compiler flags
 CC = gcc
-#CFLAGS = -Wall -pedantic -std=c11
-CFLAGS = -Wall -std=c11
+CFLAGS = -Wall -pedantic -std=c11
+#CFLAGS = -Wall -pedantic -std=c11 -m32
 
 # Source directory files
 SRC_DIR = ./src/
@@ -27,7 +27,7 @@ TEST_OBJS = TestHashMap.o
 TEST_EXEC = TestHashMap
 
 $(TEST_EXEC): $(TEST_OBJS) $(SRC_OBJS) 
-	$(CC) $(CFLAGS) $(SRC_OBJS) $(TEST_OJBS) -o $(TEST_EXEC) 
+	$(CC) $(CFLAGS) $(SRC_OBJS) $(TEST_OBJS) -o $(TEST_EXEC) 
 
 $(TEST_OBJS): $(SRC_OBJS)
 	$(CC) $(CFLAGS) -c $(TEST_SRC)

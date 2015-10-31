@@ -4,4 +4,5 @@
 # executable files
 TestHashMap
 
-*.gch
+# back ups
+*.gch*
