@@ -2,7 +2,7 @@
 // KPCB project test file
 
 #include <stdio.h>
-#include "hashmap.h"
+#include "../src/hashmap.h"
 
 int main(void) {
 

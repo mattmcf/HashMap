@@ -73,7 +73,7 @@ HashMap * CreateMap(int size) {
  */
 int Set(HashMap * map, char * new_key, void * new_val) {
 
-	HashNode * probe, prev_probe;
+	HashNode * probe;
 
 	if (!map){
 		fprintf(stderr,"cannot add to null map\n");
@@ -85,9 +85,9 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 
 	HashNode * arr 					= map->values;		// for easier access;
 
-	unsigned long this_hash 		= djb2(new_key);
+	unsigned long this_hash 		= djb2((unsigned char *)new_key);
 	int this_slot 					= this_hash % map->size;
-	int this_len 					= strlen(new_key);
+	//int this_len 					= strlen(new_key);
 
 
 	/* check if slot is unoccupied */
@@ -143,7 +143,7 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 		}
 		
 	/* check if slot is unoccupied by collided element from separate list */
-	} else if ( this_slot != arr[this_slot].hash % map->size) ) {
+	} else if (this_slot != arr[this_slot].hash % map->size)  {
 
 		/* Slot is occupied but not by something that needs to be here. Bump it out */
 		int move_to;
@@ -182,19 +182,19 @@ void * Get(HashMap * map, char * key) {
 		return NULL;
 	}
 
-	unsigned long hash 			= djb2(key);
+	unsigned long hash 			= djb2((unsigned char *)key);
 	int slot 					= hash % map->size;
-	HashNode * current_node 	= map->values[slot];
+	HashNode * current_node 	= &map->values[slot];
 	int found 					= 0;
 	void * to_return;
 
 
 	/* while key hasn't been found and there are entries at this slot */
-	while (!found && (current_node != NULL) && (current_node.occupied == OCCUPIED)) {
+	while (!found && (current_node != NULL) && (current_node->occupied == OCCUPIED)) {
 
 		/* If we found the matching entry, save the data */
-		if (strcmp(key, curr.key) == 0){
-			to_return = current_node.data;	
+		if (strcmp(key, current_node->key) == 0){
+			to_return = current_node->data;	
 
 		/* else move to the next entry */			
 		} else {
@@ -224,13 +224,14 @@ void * Get(HashMap * map, char * key) {
  		return NULL;
  	}
  	
- 	HashNode * current_node, saved_next;			// search probe and saved next element	
- 	int found = 0;									// found flag
+ 	HashNode * current_node;	// search probe
+ 	HashNode * saved_next;		// saved next entry for slot	
+ 	int found = 0;				// found flag
 
  	void * to_return 			= NULL;
- 	unsigned long hash 			= djb2(key);
+ 	unsigned long hash 			= djb2((unsigned char *)search_key);
 	int slot 					= hash % map->size;
-	current_node 				= map->values[slot];
+	current_node 				= &map->values[slot];
 
 	/* While there are unexamined entries at the search key slot */
 	while (!found && (current_node != NULL)) {					
@@ -252,23 +253,20 @@ void * Get(HashMap * map, char * key) {
 	/* delete entry if it matched key */
 	if (found) {
 
+		saved_next = NULL;
 		/* if the matching entry is at the start of a collision list, save next pointer*/
 		if (current_node->next && !current_node->prev){
 			saved_next = current_node->next;
 		}
 
 		EraseNode(current_node);
+		map->count--;
 
 		/* if the erased entry was at the head of a list, update head */
-		if (saved_next)
-			MoveValueTo(&map->values[slot], saved_next);
-			
+		if (saved_next != NULL)
+			MoveValueTo(&map->values[slot], saved_next);	
 	}
 
-	if (SUCCESS != EraseNode(target))
-		return NULL;
-
-	map->count--;
 	return to_return;
  }
 
@@ -301,19 +299,19 @@ float GetLoad(HashMap * map) {
  * if addition is sucessful, returns SUCCESS
  * if addition fails, returns FAILURE
  */
-int AddValueHere(HashNode * node, char * key, void * val) {
+int AddValueHere(HashNode * node, char * new_key, void * val) {
 
-	if (!node || !key) {
-		fprintf(stderr,"cannot add value. node (%p) or key (%p) is null\n");
+	if (!node || !new_key) {
+		fprintf(stderr,"cannot add value. node (%p) or key (%p) is null\n", node, new_key);
 		return FAILURE;
 	}
 
-	unsigned long hash 	= djb2(key);	
-	int len 			= strlen(key);
+	unsigned long hash 	= djb2((unsigned char *)new_key);	
+	int len 			= strlen(new_key);
 	
 	node->key = (char *)malloc((len+1) * sizeof(char));
 	if (!node->key){
-		fprintf(stderr,"could not add key %s. malloc error.\n",key);
+		fprintf(stderr,"could not add key %s. malloc error.\n",new_key);
 		return FAILURE;
 	}
 	strcpy(node->key,new_key);
@@ -337,10 +335,10 @@ int MoveValueTo( HashNode * to, HashNode * from) {
 	if (!to || !from){
 		fprintf(stderr,"cannot move hashnode from (%p) to (%p) because one is null\n",from, to);
 		return FAILURE;
-	} else if (from.occupied == UNOCCUPIED) {
+	} else if (from->occupied == UNOCCUPIED) {
 		fprintf(stderr,"cannot move from entry because entry is unoccupied\n");
 		return FAILURE;
-	} else if (from.key == NULL) {
+	} else if (from->key == NULL) {
 		fprintf(stderr,"front key is null. error.\n");
 		return FAILURE;
 	}
@@ -348,7 +346,7 @@ int MoveValueTo( HashNode * to, HashNode * from) {
 	/* move data elements to new location */
 	to->occupied 	= OCCUPIED;
 	to->key 		= from->key;
-	to->data 		= from->data
+	to->data 		= from->data;
 	to->hash 		= from->hash;
 	to->next 		= from->next;
 	to->prev 		= from->prev;
@@ -423,17 +421,18 @@ int EraseNode(HashNode * target) {
 	target->data			= NULL;
 	target->hash 			= 0;
 
+	return SUCCESS;
 }
 
 /*
  * djb2 hash for a string
  * http://www.cse.yorku.ca/~oz/hash.html
  */
-unsigned long djb2(unsigned char * src) {
+unsigned long djb2(unsigned char * str) {
 	unsigned long hash = 5381;
 	int c;
 
-	while (c = *str++)
+	while ( (c = *str++) )
 		hash = ((hash << 5) + hash) + c;
 
 	return hash;
