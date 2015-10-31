@@ -4,8 +4,9 @@
  *
  * Hashmap.h contains functions for creating and storing
  * values in a fixed size hashmap where the key is a 
- * string of arbitrary length and the data object is a 
- * 32 bit reference (pointer).
+ * string of arbitrary length and the data object is a data reference
+ * pointer. 
+ *
  */
 
 #ifndef HASHMAP_h
@@ -15,13 +16,8 @@
 #define SUCCESS 		0
 #define FAILURE 		1
 
-#ifndef NULL
-#define NULL		0x00
-#endif
-
-/* is this a better way to utilize space? */
 typedef struct HashNode {
-	int occupied;			/* FREE or OCCUPIED */
+	int occupied;
 	char * key;
 	void * data;
 	unsigned long hash;

@@ -6,3 +6,7 @@ TestHashMap
 
 # back ups
 *.gch*
+
+# misc files
+..
+
