@@ -20,7 +20,7 @@ can contain up to size entries.
 
 ARGUMENTS:
 
--size: must be an integer >= 1
+- size: must be an integer >= 1
 
 RETURN VALUE:
 
