@@ -302,7 +302,7 @@ int DeleteMap(HashMap * map) {
 	}
 
 	free(map->values);
-	map->values = NULL:
+	map->values = NULL;
 	map->size = 0;
 	map->count = 0;
 

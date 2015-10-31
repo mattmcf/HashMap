@@ -35,7 +35,7 @@ README.md            - this description file
 
 ## Building Instructions
 
-Run "make" - this will build TestHashMap executable and run it. If build and tests are completed successfully, user will be notified.
+Run "make" - This will build TestHashMap executable and run it. If build and tests are completed successfully, user will be notified. Run "make clean" to clean up executables and auxillary files.
 
 The executable TestHashMap can be run in two ways:
 - "./TestHashMap" = Quiet mode. Only test result is reported.
