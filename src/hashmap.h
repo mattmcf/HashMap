@@ -49,7 +49,7 @@ typedef struct HashMap {
  * 		Returns NULL on failure
  *
  * USAGE:
- * 		HashMap * new_map = CreateMap( size )
+ * 		HashMap * new_map = CreateMap(size)
  * 
  */
 HashMap * CreateMap(int size);
