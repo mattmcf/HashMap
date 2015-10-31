@@ -17,7 +17,7 @@
 #define OCCUPIED 		1
 #define SLOT_FAILURE 	-1
 
-//#define DEBUG
+//#define DEBUG			// uncomment for verbose debugging statements
 
 /* ----- PRIVATE PROTOTYPES ------ */
 int AddValueHere(HashNode * node, char * key, void * val); 
@@ -34,11 +34,6 @@ unsigned long djb2(unsigned char * src);
 
 /*
  * CreateMap creates a hash map that can contain up to size values. 
- * This requires dynamic allocation because the size of the hash map is unknown
- * until called at run time.
- * 
- * If the map is successfully created, a pointer to is it returned.
- * If an error occurs, NULL is returned
  */
 HashMap * CreateMap(int size) {
 	HashMap * map;
@@ -66,13 +61,7 @@ HashMap * CreateMap(int size) {
 }
 
 /*
- * Set stores a key-value pair in the hashmap
- * 
- * The key cannot be null.
- * if the key is already present in the hashmap, the existing value is overwritten.
- * 
- * returns SUCCESS if set was successful
- * returns FAILURE on failure
+ * Set stores a key-value pair in the hashmap (key is non-NULL)
  */
 int Set(HashMap * map, char * new_key, void * new_val) {
 
@@ -81,7 +70,7 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 	if (!map){
 		fprintf(stderr,"cannot add to null map\n");
 		return FAILURE;
-	} else if (!new_key) {
+	} else if (!new_key) {								// no NULL keys
 		fprintf(stderr,"cannot add null keys\n");
 		return FAILURE;
 	}
@@ -188,10 +177,7 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 }
 
 /*
- * Returns the reference object for the given key
- *
- * returns NULL if no value was set
- * Note: if the value set was NULL, then this will return a false failure
+ * Returns the reference object for the given key or NULL if key doesn't exist
  */
 void * Get(HashMap * map, char * key) {
 
@@ -227,10 +213,7 @@ void * Get(HashMap * map, char * key) {
 }
 
 /*
- * Deletes a key value pair
- *
- * returns the value if successful, else returns NULL
- * Note: If the value stored was NULL, then this will return a false failure
+ * Deletes a key value pair and returns key's data element
  */
  void * Delete(HashMap * map, char * search_key){
 
@@ -290,9 +273,6 @@ void * Get(HashMap * map, char * key) {
 
 /*
  * Returns the load factor in the hashmap
- *
- * load defined as (items in hashmap)/(size of hashmap)
- * returns FAILURE if map is not defined 
  */
 float GetLoad(HashMap * map) {
 
@@ -307,9 +287,7 @@ float GetLoad(HashMap * map) {
 }
 
 /*
- * Delete Map will free the memory allocated for the map
- *
- * Returns SUCCESS if no error occurs, if error occurs, returns FAILURE 
+ * Delete Map will free the memory allocated for the map and clear map's data
  */
 int DeleteMap(HashMap * map) {
 
@@ -324,6 +302,7 @@ int DeleteMap(HashMap * map) {
 	}
 
 	free(map->values);
+	map->values = NULL:
 	map->size = 0;
 	map->count = 0;
 
@@ -353,12 +332,14 @@ void PrintMap(HashMap * map) {
 			key_str = map->values[i].key;
 
 			if (map->values[i].next)
-				next_slot = (int)((unsigned int)map->values[i].next - (unsigned int)map->values) / sizeof(HashNode);
+				next_slot = (int)((unsigned int)map->values[i].next - 
+					(unsigned int)map->values) / sizeof(HashNode);
 			else
 				next_slot = -1;
 
 			if (map->values[i].prev)
-				prev_slot = (int)((unsigned int)map->values[i].prev - (unsigned int)map->values) / sizeof(HashNode);
+				prev_slot = (int)((unsigned int)map->values[i].prev - 
+					(unsigned int)map->values) / sizeof(HashNode);
 			else
 				prev_slot = -1;
 
@@ -379,6 +360,7 @@ void PrintMap(HashMap * map) {
 
 /*
  * AddValueHere places a key and value in a specified slot
+ *
  * if addition is sucessful, returns SUCCESS
  * if addition fails, returns FAILURE
  */
@@ -392,6 +374,7 @@ int AddValueHere(HashNode * node, char * new_key, void * val) {
 	unsigned long hash 	= djb2((unsigned char *)new_key);	
 	int len 			= strlen(new_key);
 	
+	/* allocate space for string key for later searching */
 	node->key = (char *)malloc((len+1) * sizeof(char));
 	if (!node->key){
 		fprintf(stderr,"could not add key %s. malloc error.\n",new_key);
@@ -410,8 +393,9 @@ int AddValueHere(HashNode * node, char * new_key, void * val) {
 
 /*
  * Moves hashnode at location to specified to location
- * returns SUCCESS on sucess
- * returns FAILURE on failure
+ * 
+ * returns SUCCESS if move was successful
+ * returns FAILURE if error occured 
  */ 
 int MoveValueTo( HashNode * to, HashNode * from) {
 
@@ -478,9 +462,10 @@ int FindNewSlot(HashMap * map, int start_point) {
 }
 
 /* 
- * deletes node and removes from list
+ * Deletes node and removes from linked list of HashNodes
  *
- * returns SUCCESS or FAILURE
+ * returns SUCCESS if node was successfully deleted
+ * returns FAILURE if error occurs
  */
 int EraseNode(HashNode * target) {
 
@@ -509,6 +494,10 @@ int EraseNode(HashNode * target) {
 
 /*
  * djb2 hash for a string
+ *
+ * hashes a string of arbitrary length 
+ * 
+ * Detailed description at the url below
  * http://www.cse.yorku.ca/~oz/hash.html
  */
 unsigned long djb2(unsigned char * str) {
@@ -516,7 +505,7 @@ unsigned long djb2(unsigned char * str) {
 	int c;
 
 	while ( (c = *str++) )
-		hash = ((hash << 5) + hash) + c;
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
 	return hash;
 }

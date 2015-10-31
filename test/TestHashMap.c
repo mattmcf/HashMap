@@ -165,6 +165,8 @@ int main(int argc, char ** argv) {
 	if (FAILURE == DeleteMap(map0))
 		ret_val++;
 
+	/* end of testing */
+
 	if (ret_val == 0)
 		printf("All tests have passed!\n");
 	else
