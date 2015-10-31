@@ -16,17 +16,15 @@ This hashmap is a fixed size hashmap implemented in C. A fixed size hashmap mean
 #### HashMap * CreateMap(int size)
 
 CreateMap returns a preallocated HashMap that
-can contain up to size entries. 
+can contain up to size entries.
 
 ARGUMENTS:
 	size - must be an integer >= 1
 
 RETURN VALUE:
+
 	Returns pointer to new HashMap if successful
 	Returns NULL on failure
-
-USAGE:
-	HashMap * new_map = CreateMap(size)
  
 
 ### Set
