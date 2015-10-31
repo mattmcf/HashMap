@@ -18,12 +18,14 @@ This hashmap is a fixed size hashmap implemented in C. A fixed size hashmap mean
 CreateMap returns a preallocated HashMap that
 can contain up to size entries.
 
-- ARGUMENTS:
-size - must be an integer >= 1
+ARGUMENTS:
 
-- RETURN VALUE:
-Returns pointer to new HashMap if successful
-Returns NULL on failure
+-size: must be an integer >= 1
+
+RETURN VALUE:
+
+- Returns pointer to new HashMap if successful
+- Returns NULL on failure
  
 
 ### Set
@@ -43,4 +45,77 @@ RETURN VALUE:
 
 - Returns SUCCESS if key was added/updated 
 - Returns FAILURE if error occurs
+
+### Get
+#### void * Get(HashMap * map, char * key)
+
+Get will retrieve the data element for a specified key if that key exists in the given HashMap. If the key does not exist in the HashMap, NULL is returned.
+
+Note - In the case that the data element was NULL, there is no way to discern between and error return value and the data element.
+
+ARGUMENTS:
+
+- map: pointer to valid HashMap to search for key in
+- key: string key to find value for
+
+RETURN VALUE:
+- Returns data value if key-value exists in HashMap
+- Returns NULL if key could not be located
+
+### Delete
+#### void * Delete(HashMap * map, char * key)
+
+Delete will remove the key-value pair from the HashMap for a given key if that key exists in the HashMap. If the key exists the key-value pair is removed, the data element for that key is returned.
+
+Note - In the case that the data element was NULL, there is no way to discern between and error return value and the data element.
+
+ARGUMENTS:
+
+- map: pointer to valid HashMap to delete entry from
+- key: string key to delete
   
+RETURN VALUE:
+
+- Returns data value if key-value existed in the HashMap and was deleted
+- Returns NULL if key did not exist or data element was NULL
+
+### GetLoad
+#### float GetLoad(HashMap * map)
+
+GetLoad returns the load factor for the specified HashMap (defined as entries currently map divided by the size of the HashMap). Load factor is a float valuebetween 0 and 1.00. 
+
+ARGUMENTS:
+
+- map: pointer to valid HashMap retrieve load from 
+
+RETURN VALUE:
+
+- Returns load factor is map exists
+- Returns FAILURE if map value array does not exist
+
+### DeleteMap
+#### int DeleteMap(HashMap * map)
+
+DeleteMap will free the space allocated for the map if memory has been allocated to it. The size and count of the map are also reset to 0.
+
+ARGUMENTS:
+
+- map - pointer to valid HashMap to delete
+
+RETURN VALUE:
+
+- Returns SUCCESS if memory was freed and map was cleared
+- Returns FAILURE if map or values array was invalid
+
+### PrintMap
+#### void PrintMap(HashMap * map)
+
+PrintMap prints the HashMap to stdout 
+
+ARGUMENTS:
+
+- map: pointer to valid HashMap to print
+
+RETURN VALUE:
+
+- NA

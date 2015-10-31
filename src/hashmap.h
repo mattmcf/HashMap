@@ -47,9 +47,6 @@ typedef struct HashMap {
  * RETURN VALUE:
  * 		Returns pointer to new HashMap if successful
  * 		Returns NULL on failure
- *
- * USAGE:
- * 		HashMap * new_map = CreateMap(size)
  * 
  */
 HashMap * CreateMap(int size);
@@ -124,7 +121,7 @@ void * Delete(HashMap * map, char * key);
  * GetLoad returns the load factor for the specified
  * HashMap (defined as entries currently map divided by
  * the size of the HashMap). Load factor is a float value
- * between 0 and 1.0 . 
+ * between 0 and 1.00. 
  *
  * ARGUMENTS:
  * 		map - pointer to valid HashMap retrieve load from 
