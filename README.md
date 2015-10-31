@@ -33,12 +33,14 @@ Set will add a key-value pair to the HashMap if it does not exist. If the key al
 
 Note - NULL keys cannot be set in HashMap. Null strings can be a valid key however. (ie. key == NULL will return FAILURE, but key == "" will try to insert or update the data element.) NULL data values are valid data elements to store for a key.
 
--ARGUMENTS:\n
-map - pointer to valid HashMap to add key-value to\n
-key - string key to add or update value for (cannot be NULL)\n
-val - data reference to store with key\n
+ARGUMENTS:
+
+- map: pointer to valid HashMap to add key-value to\n
+- key: string key to add or update value for (cannot be NULL)\n
+- val: data reference to store with key\n
  
-- RETURN VALUE:
-Returns SUCCESS if key was added/updated 
-Returns FAILURE if error occurs
+RETURN VALUE:
+
+- Returns SUCCESS if key was added/updated 
+- Returns FAILURE if error occurs
   
