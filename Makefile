@@ -28,6 +28,7 @@ TEST_EXEC = TestHashMap
 
 $(TEST_EXEC): $(TEST_OBJS) $(SRC_OBJS) 
 	$(CC) $(CFLAGS) $(SRC_OBJS) $(TEST_OBJS) -o $(TEST_EXEC) 
+	./$(TEST_EXEC)
 
 $(TEST_OBJS): $(SRC_OBJS)
 	$(CC) $(CFLAGS) -c $(TEST_SRC)

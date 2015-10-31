@@ -13,19 +13,26 @@
 int main(int argc, char ** argv) {
 
 	int verbose = 0; 				// if 1, will print out detailed testing
+	FILE * new_stderr;
 
 	if (argc > 2) {
 		fprintf(stderr,"invalid arguments for TestHashMap.\n");
 		return FAILURE;
+
+	} else if (argc == 1) {			// quiet mode
+		new_stderr = fopen("/dev/null","w");
+		stderr = new_stderr;
+
 	} else if (argc == 2) {
-		if (strcmp(argv[1],"verbose") == 0) 
+
+		if (strcmp(argv[1],"verbose") == 0) {
 			verbose = 1;			// detailed testing report desired
 
-		else {
+		} else {
 			fprintf(stderr,"did not recognize option. exiting.\n");
 			return FAILURE;
 		}
-	}
+	} 
 
 	printf("This is the test program for Matt McFarland's HashMap.\n");
 	int ret_val = 0;
@@ -35,7 +42,7 @@ int main(int argc, char ** argv) {
 		arr[i] = i;
 	}
 
-	/* --- create hashmap tests --- */
+	/* --- testing hashmap creation --- */
 	if (verbose)
 		printf("testing map creation\n");
 
@@ -121,7 +128,9 @@ int main(int argc, char ** argv) {
 		if (Get(map0,str)) {
 
 			// if value is in map, delete it
-			// printf("removing str %s\n", str);
+			if (verbose)
+				printf("removing str %s\n", str);
+
 			if (&arr[i] != Delete(map0, str))
 				ret_val++;		
 		}
@@ -130,7 +139,8 @@ int main(int argc, char ** argv) {
 	if (verbose)
 		printf("load is now %f\n", GetLoad(map0));
 
-	/* if we remove the key "" (set at line ) after adding "0", can we still find "0"? */
+	/* if we remove the key "" (set at line 87 in this file) after adding "0", can we still find "0"? */
+
 	if (FAILURE == Set(map0, "0", (void *)&main))		// "0" collides with "" in slot 1
 		ret_val++;
 
@@ -150,7 +160,7 @@ int main(int argc, char ** argv) {
 		ret_val++;
 
 	if (verbose)
-		PrintMap(map0);										// "0" should be is slot 1 now
+		PrintMap(map0);									// "0" should be is slot 1 now
 	
 	if (FAILURE == DeleteMap(map0))
 		ret_val++;
