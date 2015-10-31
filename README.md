@@ -4,11 +4,42 @@ This project was created for KPCB's Engineering Fellows application (2015). It i
 
 ## Project Description:
 
-This hashmap is a fixed size hashmap implemented in C. A fixed size hashmap means that there is a limited number of entries that can be stored in the map. All of the elements are stored within the hashmap itself (as opposed to a hashmap where each collided entry is chained off of the first element in a given slot)
+This hashmap is a fixed size hashmap implemented in C. A fixed size hashmap means that there is a limited number of entries that can be stored in the map. All of the elements are stored within the hashmap itself (as opposed to a hashmap where each collided entry is chained off of the head element in a given slot). So if the hashmap is full and a new element is added, a FAILURE occurs and the new element isn't added. Keys are only placed in the hashmap once, so if the Set function is invoked for a key that already exists in the HashMap, then that key's value will be updated with the new value as opposed to adding a new key-value pair.
 
+In order to manage the complexity of tracking and finding collisions that can occur within a fixed size hash map, this hashmap uses a doubly-linked list of HashNodes for a single slot to track collided elements. For example, if keys A, B, and C all hash to slot 13 (and are added in that order), then A will be located in slot 13. When B is added, B will collide with A in slot 13. So a free slot is found and then B is placed in that free slot. Then A's next element is pointed at B and B's previous element is pointed at A. When C is added and collides with A in slot 13, C will traverse down A's next list of collided nodes until the end of the list is found. A free slot for C is found and C is inserted there. C is then linked to the end of A's collided list. In this example, that means B's next element will point at C's slot and C's previous element will point at B's slot. 
 
-- describe HASH used, 
-- detail why I need stdlib.h, string.h
+Continuing this example with A, B, and C, if a fourth element, D is added that hashes to the slot that B occupies, D will see that B is occupying D's intended slot. Since B was place there arbitrarily, and D belongs is B's slot, B is moved to a different, arbitrary free slot and D is placed in B's old location. B's adjacent neighbors in its linked list of next and previous elements are updated to relect B's new location. If element E is added that also maps to D's slot, then E will be placed in an arbitrary, free slot and attached to D's collision list.
+
+If element A is removed, then A is deleted from its slot. However, because A is the head of a collision list for slot 13 and that collision list isn't empty, a new head element need to be placed in slot 13 to maintain the integrity of that collision list. So B, the next element in that collision list, is moved from it's arbitrary location and placed in slot 13. B updates it's predecessor with its new location information.
+
+Other Information:
+
+Hash Function: I used the djb2 hash for my hash function. This acts on a string of arbitrary length to return a hash value. More information is included here: http://www.cse.yorku.ca/~oz/hash.html
+
+Since I implemented this project in C, I needed to include the following libraries:
+- stdlib.h for its memory allocation functions
+- string.h for its string operation functions (since a string class would be built into other languages)
+- stdio.h for its I/O operations (for verbose debugging and printing map)
+
+## Project Contents
+
+/src/hashmap.h       - public functions and definitions for interacting with HashMap
+
+/src/hashmap.c       - implementation of functions in hashmap.h as well as private functions
+
+/test/TestHashMap.c  - test routine for the functionality of the HashMap
+
+Makefile             - builds TestHashMap and runs it
+
+README.md            - this description file
+
+## Building Instructions
+
+Run "make" - this will build TestHashMap executable and run it. If build and tests are completed successfully, user will be notified.
+
+The executable TestHashMap can be run in two ways:
+- "./TestHashMap" = Quiet mode. Only test result is reported.
+- "./TestHashMap verbose" = Verbose mode. Detailed testing is reported to stdout.
 
 ## Function Descriptions
 
