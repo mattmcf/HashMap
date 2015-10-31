@@ -12,11 +12,12 @@
 #include <string.h> 	// for strcmp, strlen, strcpy 
 #include "hashmap.h"
 
-/* DEFINES */
-
-#define SUCCESS 		0
-#define FAILURE 		1
+/* PRIVATE CONSTANTS */
+#define UNOCCUPIED 		0
+#define OCCUPIED 		1
 #define SLOT_FAILURE 	-1
+
+//#define DEBUG
 
 /* ----- PRIVATE PROTOTYPES ------ */
 int AddValueHere(HashNode * node, char * key, void * val); 
@@ -53,6 +54,8 @@ HashMap * CreateMap(int size) {
 		return NULL;
 	}
 
+	map->size = size;
+
 	map->values = (HashNode *)malloc(sizeof(HashNode) * size);
 	if (!map->values) {
 		fprintf(stderr,"malloc error\n");
@@ -84,14 +87,15 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 	}
 
 	HashNode * arr 					= map->values;		// for easier access;
-
 	unsigned long this_hash 		= djb2((unsigned char *)new_key);
 	int this_slot 					= this_hash % map->size;
-	//int this_len 					= strlen(new_key);
-
 
 	/* check if slot is unoccupied */
 	if (arr[this_slot].occupied == UNOCCUPIED){
+
+		#ifdef DEBUG
+		printf("no collisions for %s at slot %d\n", new_key, this_slot);
+		#endif
 
 		/* slot is unoccupied, add new key-value pair here */
 		if (FAILURE == AddValueHere( &arr[this_slot], new_key, new_val))
@@ -102,14 +106,18 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 	/* check if slot is occupied by entry that also maps to specified slot */
 	} else if ( this_slot == (arr[this_slot].hash % (map->size)) )  {
 
+		#ifdef DEBUG
+		printf("collisions for %s at slot %d\n", new_key, this_slot);
+		#endif		
+
 		/* slot is occupied by something that also maps to this slot */
 		/* traverse down list to see if key-value already exists */
 		probe = &arr[this_slot];
 		int contains = 0;
-		while (!contains && probe->next != NULL){
+		do {
 
 			/* compare current entry in list to key to add/update */
-			if (strcmp(new_key,probe->key)) {
+			if (strcmp(new_key,probe->key) == 0) {
 
 				/* key-value already exists in list, update value */
 				contains = 1;
@@ -121,7 +129,14 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 				if (probe->next)
 					probe = probe->next;
 			}
-		}
+		} while (!contains && probe->next != NULL); 	// go until end of list is reached
+
+		#ifdef DEBUG
+		if (!contains)
+			printf("did not find %s in slot %d collision list\n", new_key, this_slot);
+		else
+			printf("found %s in the collisions list\n", new_key);
+		#endif
 
 		/* if the key-value to add isn't in the list at this slot, add it */
 		if (!contains) {
@@ -132,20 +147,28 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 				return FAILURE;
 
 			/* add new entry to the new slot in a collision list */
-			if (FAILURE == AddValueHere(&arr[this_slot], new_key, new_val))  
+			if (FAILURE == AddValueHere(&arr[new_slot], new_key, new_val))  
 				return FAILURE;
 
+			#ifdef DEBUG
+			printf("adding %s to slot %d and attaching it to %d\n",new_key,new_slot,this_slot);
+			#endif			
+
 			/* connect new entry to the list from the original slot */
-			probe->next = &arr[new_slot];					
-			probe->prev = &arr[this_slot];
+			probe->next 		= &arr[new_slot];					
+			arr[new_slot].prev 	= &arr[this_slot];
 
 			map->count++;
 		}
-		
-	/* check if slot is unoccupied by collided element from separate list */
-	} else if (this_slot != arr[this_slot].hash % map->size)  {
 
-		/* Slot is occupied but not by something that needs to be here. Bump it out */
+	} else {
+
+		/* Slot is occupied by an element collided from a separate slot. Bump it out */
+		#ifdef DEBUG
+		printf("collisions for %s at slot %d but moving element\n", new_key, this_slot);
+		#endif	
+
+		/* Find a new slot for the entry currently at this new key's slot */
 		int move_to;
 		if (SLOT_FAILURE == (move_to = FindNewSlot(map, this_slot)) )  
 			return FAILURE;
@@ -159,12 +182,7 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 			return FAILURE;
 
 		map->count++;
-
-	} else {
-		fprintf(stderr,"how did we get here ????\n");
-		return FAILURE; 
-		/* how did we end up here? */
-	}
+	} 
 
 	return 0;
 }
@@ -188,13 +206,13 @@ void * Get(HashMap * map, char * key) {
 	int found 					= 0;
 	void * to_return;
 
-
 	/* while key hasn't been found and there are entries at this slot */
 	while (!found && (current_node != NULL) && (current_node->occupied == OCCUPIED)) {
 
 		/* If we found the matching entry, save the data */
 		if (strcmp(key, current_node->key) == 0){
 			to_return = current_node->data;	
+			found = 1;
 
 		/* else move to the next entry */			
 		} else {
@@ -262,7 +280,7 @@ void * Get(HashMap * map, char * key) {
 		EraseNode(current_node);
 		map->count--;
 
-		/* if the erased entry was at the head of a list, update head */
+		/* if the erased entry was at the head of a list, place next element at head */
 		if (saved_next != NULL)
 			MoveValueTo(&map->values[slot], saved_next);	
 	}
@@ -283,9 +301,74 @@ float GetLoad(HashMap * map) {
 		return FAILURE;
 	}
 
-	float load = (float)map->count / map->count;
+	float load = (float)map->count / map->size;
 
 	return load;
+}
+
+/*
+ * Delete Map will free the memory allocated for the map
+ *
+ * Returns SUCCESS if no error occurs, if error occurs, returns FAILURE 
+ */
+int DeleteMap(HashMap * map) {
+
+	if (!map){
+		fprintf(stderr,"cannot delete null map\n");
+		return FAILURE;
+	}
+
+	if (!map->values) {
+		fprintf(stderr,"missing map value array\n");
+		return FAILURE;
+	}
+
+	free(map->values);
+	map->size = 0;
+	map->count = 0;
+
+	return SUCCESS;
+}
+
+/*
+ * PrintMap prints the HashMap to stdout
+ */
+void PrintMap(HashMap * map) {
+
+	if (!map) {
+		fprintf(stderr,"cannot print null map\n");
+		return;
+	}
+
+	int next_slot;
+	int prev_slot;
+	char * key_str;
+
+	printf("Printing Map\n");
+	for (int i = 0; i < map->size; i++){
+
+		printf("\tslot #: %d", i);
+
+		if (map->values[i].occupied == OCCUPIED){
+			key_str = map->values[i].key;
+
+			if (map->values[i].next)
+				next_slot = (int)((unsigned int)map->values[i].next - (unsigned int)map->values) / sizeof(HashNode);
+			else
+				next_slot = -1;
+
+			if (map->values[i].prev)
+				prev_slot = (int)((unsigned int)map->values[i].prev - (unsigned int)map->values) / sizeof(HashNode);
+			else
+				prev_slot = -1;
+
+			printf(" -- OCCUPIED, key: %s, data: %p, hash: %lu, next: %d, prev: %d\n",
+				key_str, map->values[i].data, map->values[i].hash, next_slot, prev_slot);
+		} else {
+			printf(" -- UNOCCUPIED\n");
+		}
+
+	}
 }
 
 /*
@@ -437,5 +520,7 @@ unsigned long djb2(unsigned char * str) {
 
 	return hash;
 }
+
+
 
 

@@ -11,9 +11,9 @@
 #ifndef HASHMAP_h
 #define HASHMAP_h
 
-/* ------ CONSTANTS ------- */
-#define UNOCCUPIED 		0
-#define OCCUPIED 		1
+/* ------ PUBLIC CONSTANTS ------- */
+#define SUCCESS 		0
+#define FAILURE 		1
 
 #ifndef NULL
 #define NULL		0x00
@@ -76,5 +76,17 @@ void * Delete(HashMap * map, char * key);
  * load defined as (items in hashmap)/(size of hashmap)
  */
 float GetLoad(HashMap * map);
+
+/*
+ * Delete Map will free the memory allocated for the map
+ *
+ * Returns SUCCESS if no error occurs, if error occurs, returns FAILURE 
+ */
+int DeleteMap(HashMap * map);
+
+/*
+ * PrintMap prints the HashMap to stdout
+ */
+void PrintMap(HashMap * map);
 
 #endif // HASHMAP_h
