@@ -43,6 +43,25 @@ The executable TestHashMap can be run in two ways:
 - "./TestHashMap" = Quiet mode. Only test result is reported.
 - "./TestHashMap verbose" = Verbose mode. Detailed testing is reported to stdout.
 
+## Testing
+
+The following tests are conducted in the TestHashMap executable.
+- Try creating a HashMap with negative, zero and positive integer sizes
+- Try adding key-value pairs where the map is null, key is null, and the data elements are null
+- Test Getting and Deleting keys that have null data
+- Test Getting and Deleting keys that don't exist in HashMap
+- Add permissible keys and data until HashMap is full (tests collision handling)
+- Try adding a key-value to full HashMap
+- Remove all of the keys just added
+- GetLoad when HashMap is full and empty
+- DeleteMap is tested
+
+SPECIAL CASE - SIZE = 10 -> When the SIZE constant is defined as 10, the collision handling mechanism used in this HashMap become clear. A collided element gets move to a different slot by a new addition on a different slot. When the original element that the second element collided with is removed, the second element is moved back to the head of the collision list (back to first element's slot).
+
+All of these tests have been conducted in a memory management environment. All memory leaks have been handled.
+
+To see more verbose testing output, use "TestHashMap verbose" call and uncomment the "#define DEBUG" statement at the top of the hashmap.c file.
+
 ## Function Descriptions
 
 ### CreateMap

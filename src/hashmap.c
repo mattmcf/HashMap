@@ -17,7 +17,7 @@
 #define OCCUPIED 		1
 #define SLOT_FAILURE 	-1
 
-#define DEBUG			// uncomment for verbose debugging statements
+//#define DEBUG			// uncomment for verbose debugging statements
 
 /* ----- PRIVATE PROTOTYPES ------ */
 int AddValueHere(HashNode * node, char * key, void * val); 

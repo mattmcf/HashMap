@@ -13,7 +13,7 @@
 int main(int argc, char ** argv) {
 
 	int verbose = 0; 				// if 1, will print out detailed testing
-	FILE * new_stderr = -1;
+	FILE * new_stderr = NULL;
 
 	if (argc > 2) {
 
@@ -218,7 +218,7 @@ int main(int argc, char ** argv) {
 		printf("Error occured in some tests (%d errors)\n", ret_val);
 
 	/* close rerouted stderr */
-	if (new_stderr != -1)
+	if (new_stderr != NULL)
 		fclose(new_stderr);
 
 	/* if all tests succeeded, then return value will be zero */
