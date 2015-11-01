@@ -7,7 +7,7 @@
 #include <stdlib.h> 		// for malloc and free
 #include "../src/hashmap.h"
 
-#define SIZE 		20			// make a HashMap 10 elements long
+#define SIZE 		10			// make a HashMap 10 elements long
 #define MAX_LEN	 	20			// for testing strings
 
 int main(int argc, char ** argv) {
@@ -132,8 +132,6 @@ int main(int argc, char ** argv) {
 
 		if (SUCCESS != Set(map0, str, &arr[i]))
 			ret_val++;
-
-		PrintMap(map0);
 	}
 
 	if (verbose)
@@ -143,7 +141,7 @@ int main(int argc, char ** argv) {
 		printf("load is now %f\n", GetLoad(map0));		// should be 1.0 (full)
 
 	// test setting value while map is full
-	if (FAILURE != Set(map0, "full now", (void *)&main))		// should not be able to add to full maps
+	if (FAILURE != Set(map0, "FULLNOW", (void *)&main))		// should not be able to add to full maps
 		ret_val++;		
 
 
@@ -162,7 +160,7 @@ int main(int argc, char ** argv) {
 	if (verbose)
 		printf("testing removal of values\n");
 
-	for (int i = SIZE-1; i >= 0; i--) {
+	for (int i = SIZE-2; i >= 0; i--) {					// remove all of added strings
 		sprintf(str, "%d", i);	 						// use index strings for keys
 	
 		if (NULL != Get(map0,str,NULL)) {				// not using NULL data so no need to save status
@@ -183,11 +181,11 @@ int main(int argc, char ** argv) {
 
 	/* if we remove the key "" (set at line 87 in this file) after adding "0", can we still find "0"? */
 
-	if (SUCCESS != Set(map0, "0", (void *)&main))		// "0" collides with "" in slot 1
+	if (SUCCESS != Set(map0, "0", (void *)&main))		// "0" collides with ""
 		ret_val++;
 
 	if (verbose)
-		PrintMap(map0);									// "0" should be in slot 2
+		PrintMap(map0);									// "0" in a different slot than ""
 
 	if (SUCCESS != Set(map0, "1", &ret_val))			// bump "0" out of slot 2
 		ret_val++;

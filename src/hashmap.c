@@ -149,7 +149,7 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 			printf("adding %s to slot %d and attaching it to %d\n",new_key,new_slot,this_slot);
 			#endif			
 
-			/* connect new entry to the list from the original slot */
+			/* connect new entry to the end of the list from the original slot */
 			probe->next 		= &arr[new_slot];					
 			arr[new_slot].prev 	= probe;
 
