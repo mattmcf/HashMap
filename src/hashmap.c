@@ -17,7 +17,7 @@
 #define OCCUPIED 		1
 #define SLOT_FAILURE 	-1
 
-//#define DEBUG			// uncomment for verbose debugging statements
+#define DEBUG			// uncomment for verbose debugging statements
 
 /* ----- PRIVATE PROTOTYPES ------ */
 int AddValueHere(HashNode * node, char * key, void * val); 
@@ -93,13 +93,13 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 		#endif
 
 		/* slot is unoccupied, add new key-value pair here */
-		if (FAILURE == AddValueHere( &arr[this_slot], new_key, new_val))
+		if (FAILURE == AddValueHere(&arr[this_slot], new_key, new_val))
 			return FAILURE;
 
 		map->count++;
 
 	/* check if slot is occupied by entry that also maps to specified slot */
-	} else if ( this_slot == (arr[this_slot].hash % (map->size)) )  {
+	} else if (this_slot == (arr[this_slot].hash % (map->size)) )  {
 
 		#ifdef DEBUG
 		printf("collisions for %s at slot %d\n", new_key, this_slot);
@@ -151,7 +151,7 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 
 			/* connect new entry to the list from the original slot */
 			probe->next 		= &arr[new_slot];					
-			arr[new_slot].prev 	= &arr[this_slot];
+			arr[new_slot].prev 	= probe;
 
 			map->count++;
 		}
@@ -159,14 +159,14 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 	} else {
 
 		/* Slot is occupied by an element collided from a separate slot. Bump it out */
-		#ifdef DEBUG
-		printf("collisions for %s at slot %d but moving element\n", new_key, this_slot);
-		#endif	
-
 		/* Find a new slot for the entry currently at this new key's slot */
 		int move_to;
 		if (SLOT_FAILURE == (move_to = FindNewSlot(map, this_slot)) )  
 			return FAILURE;
+
+		#ifdef DEBUG
+		printf("collisions for %s at slot %d but moving element %s to slot %d\n", new_key, this_slot, map->values[this_slot].key, move_to);
+		#endif	
 
 		/* Bump non-related entry out of this slot */
 		if (FAILURE == MoveValueTo( &arr[move_to], &arr[this_slot]))
@@ -271,6 +271,7 @@ void * Get(HashMap * map, char * key, int * status_ptr) {
 	if (found) {
 
 		saved_next = NULL;
+
 		/* if the matching entry is at the start of a collision list, save next pointer*/
 		if (current_node->next && !current_node->prev){
 			saved_next = current_node->next;
@@ -280,8 +281,11 @@ void * Get(HashMap * map, char * key, int * status_ptr) {
 		map->count--;
 
 		/* if the erased entry was at the head of a list, place next element at head */
-		if (saved_next != NULL)
-			MoveValueTo(&map->values[slot], saved_next);	
+		if (saved_next != NULL) {
+			MoveValueTo(&map->values[slot], saved_next);
+			map->values[slot].prev = NULL;
+		}
+				
 	}
 
 	if (status_ptr != NULL) {
@@ -439,7 +443,7 @@ int MoveValueTo( HashNode * to, HashNode * from) {
 		fprintf(stderr,"cannot move from entry because entry is unoccupied\n");
 		return FAILURE;
 	} else if (from->key == NULL) {
-		fprintf(stderr,"front key is null. error.\n");
+		fprintf(stderr,"from key is null. error.\n");
 		return FAILURE;
 	}
 

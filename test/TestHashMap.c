@@ -7,8 +7,8 @@
 #include <stdlib.h> 		// for malloc and free
 #include "../src/hashmap.h"
 
-#define SIZE 		10
-#define MAX_LEN	 	20
+#define SIZE 		20			// make a HashMap 10 elements long
+#define MAX_LEN	 	20			// for testing strings
 
 int main(int argc, char ** argv) {
 
@@ -125,14 +125,19 @@ int main(int argc, char ** argv) {
 	// add a bunch of regular strings
 	char str[MAX_LEN];
 	for (int i = 0; i < SIZE-1; i++){
-		sprintf(str, "%d", i );	 						// use index strings for keys
+		sprintf(str, "%d", i);	 						// use index strings for keys
 
 		if (verbose)
 			printf("adding str %s\n", str);
 
 		if (SUCCESS != Set(map0, str, &arr[i]))
 			ret_val++;
+
+		PrintMap(map0);
 	}
+
+	if (verbose)
+		PrintMap(map0);
 
 	if (verbose)
 		printf("load is now %f\n", GetLoad(map0));		// should be 1.0 (full)
@@ -158,9 +163,9 @@ int main(int argc, char ** argv) {
 		printf("testing removal of values\n");
 
 	for (int i = SIZE-1; i >= 0; i--) {
-		sprintf(str, "%d", i );	 						// use index strings for keys
+		sprintf(str, "%d", i);	 						// use index strings for keys
 	
-		if (NULL != Get(map0,str, NULL)) {
+		if (NULL != Get(map0,str,NULL)) {				// not using NULL data so no need to save status
 
 			// if value is in map, delete it
 			if (verbose)
@@ -168,6 +173,8 @@ int main(int argc, char ** argv) {
 
 			if (&arr[i] != Delete(map0, str, NULL))		// not using NULL data so no need to save status
 				ret_val++;		
+		} else {
+			ret_val++;									// each value should be in HashMap
 		}
 	}
 
@@ -199,13 +206,14 @@ int main(int argc, char ** argv) {
 	
 	if (SUCCESS != DeleteMap(map0))
 		ret_val++;
+	map0 = NULL;
 
 	/* end of testing */
 
 	if (ret_val == 0)
 		printf("All tests have passed!\n");
 	else
-		printf("Error occured in some tests\n");
+		printf("Error occured in some tests (%d errors)\n", ret_val);
 
 	/* if all tests succeeded, then return value will be zero */
 	return 0;
