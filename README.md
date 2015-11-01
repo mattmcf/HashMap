@@ -16,11 +16,13 @@ For example, if keys A, B, and C all hash to slot 13 (and are added in that orde
 
 Continuing this example with A, B, and C, if a fourth element, D is added that hashes to the slot that B occupies, D will see that B is occupying D's intended slot. Since B was placed there arbitrarily, and D belongs is B's slot, B is moved to a different, arbitrary free slot and D is placed in B's old location. B's adjacent linked-list neighbors (A and C) are updated to relect B's new location. If element E is added that also maps to D's slot, then E will be placed in an arbitrary, free slot and attached to D's collision list.
 
-If element A is removed, then A is removed from slot 13. However, because A is the head of a collision list for slot 13 (linking B and C to 13) and that collision list isn't empty, a new head element needs to be placed in slot 13 to maintain the integrity of that collision list. So B, the next element in that collision list, is moved from it's arbitrary location and placed in slot 13. B updates it's predecessor with its new location information.
+If element A is removed, then A is removed from slot 13. However, because A is the head of a collision list for slot 13 (linking B and C to 13) and that collision list isn't empty, a new head element needs to be placed in slot 13 to maintain the integrity of that collision list. So B, the next element in that collision list, is moved from it's arbitrary location and placed in slot 13. B updates its neighbor C with its new location information.
+
+### Pseudocode
 
 To set a key (and map isn't full), look at its intended slot. If that slot is unoccupied, add the new entry there. If that slot is occupied by another entry that maps to the new entry's slot, traverse that pre-existing entry's collided entry list. While traversing, examine each collided node and see if the new entry is already in HashMap. If it is, just update the data value. If the new entry isn't on the collided list, add the new entry to the end of that list (place the new_entry in an arbitrary, free slot and put it on the end of the linked list).
 
-To get a data value for a key, examine the slot the key maps to and each entry on that slot's collision list for matching keys. If a match isn't found, return error.
+To get a data value for a key, examine the slot the key maps to and each entry on that slot's collision list for matching keys. If a match isn't found, return failure.
 
 To delete an entry, find the slot the specified key should map to. If occupied, traverse the collision list, examining each entry along the way for a match. Once a match is found, remove that entry from the HashMap (fix up linked list pointers). If the entry is the head of a collision list (exists in the slot that key hashes to), then move the first element in the collision list to the deleted entry's location.
 
@@ -68,11 +70,11 @@ The following tests are conducted in the TestHashMap executable.
 - GetLoad when HashMap is full and empty
 - DeleteMap is tested
 
-SPECIAL CASE - SIZE = 10 -> When the SIZE constant is defined as 10, the collision handling mechanism used in this HashMap become clear. A collided element gets move to a different slot by a new addition on a different slot. When the original element that the second element collided with is removed, the second element is moved back to the head of the collision list (back to first element's slot).
+SPECIAL CASE - SIZE = 10 -> When the SIZE constant is defined as 10, the collision handling mechanism used in this HashMap become clear. Run "TestHashMap verbose" to see representations of the map printed out throughout the collisions handling. A collided element "0" gets moved to a different slot by a new addition "1" on a different slot. When the original element that the second element collided with is removed (""), the second element "0" is moved back to the head of the collision list (back to first element's slot).
 
-All of these tests have been conducted in a memory management environment. All memory leaks have been handled.
+All of these tests have been conducted in a memory management environment. All memory leaks have been handled and plugged.
 
-To see more verbose testing output, use "TestHashMap verbose" call and uncomment the "#define DEBUG" statement at the top of the hashmap.c file.
+To see more verbose testing output, use "TestHashMap verbose" and uncomment the "#define DEBUG" statement at the top of the hashmap.c file.
 
 ## Function Descriptions
 
@@ -83,12 +85,12 @@ CreateMap returns a preallocated HashMap that can contain up to size entries.
 
 ARGUMENTS:
 
-- size: must be an integer >= 1
+- size: must be an integer greater than zero
 
 RETURN VALUE:
 
 - Returns pointer to new HashMap if successful
-- Returns NULL on failure
+- Returns NULL if map could not be created
  
 
 ### Set
@@ -107,7 +109,7 @@ ARGUMENTS:
 RETURN VALUE:
 
 - Returns SUCCESS if key was added/updated 
-- Returns FAILURE if error occurs
+- Returns FAILURE if key could not be added or updated
 
 
 ### Get
@@ -121,7 +123,7 @@ ARGUMENTS:
 
 - map: pointer to valid HashMap to search for key in
 - key: string key to find value for
-- status_ptr - pointer to variables where SUCCESS or FAILURE will be stored on return (if NULL, status won't be saved) 
+- status_ptr - pointer to variable where SUCCESS or FAILURE will be stored on return (if NULL, status won't be saved) 
 
 RETURN VALUE:
 - Returns data value if key-value exists in HashMap
@@ -138,7 +140,7 @@ ARGUMENTS:
 
 - map: pointer to valid HashMap to delete entry from
 - key: string key to delete
-- status_ptr - pointer to variables where SUCCESS or FAILURE will be stored on return (if NULL, status won't be saved)
+- status_ptr - pointer to variable where SUCCESS or FAILURE will be stored on return (if NULL, status won't be saved)
   
 RETURN VALUE:
 
