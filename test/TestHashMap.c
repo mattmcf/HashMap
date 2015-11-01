@@ -179,13 +179,15 @@ int main(int argc, char ** argv) {
 	if (verbose)
 		printf("load is now %f\n", GetLoad(map0));
 
-	/* if we remove the key "" (set at line 87 in this file) after adding "0", can we still find "0"? */
-
-	if (SUCCESS != Set(map0, "0", (void *)&main))		// "0" collides with ""
+	/* 
+	 * These tests will examine how elements are bumped around when collisions occurs.
+	 * Size should be 10 for these to illustrate how collisions are handled.
+	 */
+	if (SUCCESS != Set(map0, "0", (void *)&main))		// "0" collides with "" in slot 1
 		ret_val++;
 
 	if (verbose)
-		PrintMap(map0);									// "0" in a different slot than ""
+		PrintMap(map0);									// "0" in a different slot (2) than ""
 
 	if (SUCCESS != Set(map0, "1", &ret_val))			// bump "0" out of slot 2
 		ret_val++;

@@ -330,7 +330,8 @@ int DeleteMap(HashMap * map) {
 
 	/* free all keys left in map */
 	for (int i = 0; i < map->size; i++){
-		if (map->values[i].occupied == OCCUPIED && (map->values[i].key != NULL))
+		//if (map->values[i].occupied == OCCUPIED && (map->values[i].key != NULL))
+		if (map->values[i].occupied == OCCUPIED)
 			free(map->values[i].key);
 	}
 
