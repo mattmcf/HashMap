@@ -26,9 +26,14 @@ TEST_OBJS = TestHashMap.o
 # Test executable
 TEST_EXEC = TestHashMap
 
+test: $(TEST_EXEC)
+	./$(TEST_EXEC)
+
+verbose: $(TEST_EXEC)
+	./$(TEST_EXEC) verbose
+
 $(TEST_EXEC): $(TEST_OBJS) $(SRC_OBJS) 
 	$(CC) $(CFLAGS) $(SRC_OBJS) $(TEST_OBJS) -o $(TEST_EXEC) 
-	./$(TEST_EXEC)
 
 $(TEST_OBJS): $(SRC_OBJS)
 	$(CC) $(CFLAGS) -c $(TEST_SRC)

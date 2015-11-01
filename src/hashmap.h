@@ -80,20 +80,31 @@ int Set(HashMap * map, char * key, void * val);
  * key if that key exists in the given HashMap. If the
  * key does not exist in the HashMap, NULL is returned.
  * 
- * Note - In the case that the data element was NULL,
- * there is no way to discern between and error return
- * value and the data element.
+ * Note - If a key has a NULL data value, that NULL will
+ * be returned by Get. The result of the status variable 
+ * pointed at in the argument will state whether a value
+ * was successfully retrieved (SUCCESS) or if the key
+ * could not be found/error occurred. So if Get returns
+ * NULL and the status variable is SUCCESS, the key exists
+ * in the HashMap and is NULL. If Get returns NULL and status
+ * is FAILURE, then the key isn't in the HashMap.
  *
  * ARGUMENTS:
  * 		map - pointer to valid HashMap to search for key in
  *		key - string key to find value for
+ * 		status_ptr - pointer to variable where SUCCESS or FAILURE is
+ * 			stored on return (if NULL, success status won't be saved)
  * 
  * RETURN VALUE:
  * 		Returns data value if key-value exists in HashMap
  * 		Returns NULL if key could not be located
- *  
+ *		If data was successfully retrieved status will be 
+ *			SUCCESS if a pointer is given
+ * 		If data could not be retrieved because key was absent
+ * 			or error occured, status will be FAILURE
+ *
  */  
-void * Get(HashMap * map, char * key);
+void * Get(HashMap * map, char * key, int * status_ptr);
 
 /*
  * Delete will remove the key-value pair from the HashMap
@@ -101,13 +112,20 @@ void * Get(HashMap * map, char * key);
  * key exists the key-value pair is removed, the data element
  * for that key is returned.
  *
- * Note - In the case that the data element was NULL,
- * there is no way to discern between and error return
- * value and the data element.
+ * Note - If a key has a NULL data value, that NULL will
+ * be returned by Delete. The result of the status variable 
+ * pointed at in the argument will state whether a value
+ * was successfully retrieved (SUCCESS) or if the key
+ * could not be found/error occurred. So if Delete returns
+ * NULL and the status variable is SUCCESS, the key existed
+ * in the HashMap and the data was NULL. If Delete returns 
+ * NULL and status is FAILURE, then the key wasn't in the HashMap.
  *
  * ARGUMENTS:
  * 		map - pointer to valid HashMap to delete entry from
  *		key - string key to delete
+ *		status_ptr - pointer to variable where SUCCESS or FAILURE
+ *			is stored on return (if NULL, success status won't be saved)
  * 
  * RETURN VALUE:
  * 		Returns data value if key-value existed in the
@@ -115,7 +133,7 @@ void * Get(HashMap * map, char * key);
  * 		Returns NULL if key did not exist or data element was NULL
  *  
  */  
-void * Delete(HashMap * map, char * key);
+void * Delete(HashMap * map, char * key, int * status_ptr);
 
 /*
  * GetLoad returns the load factor for the specified

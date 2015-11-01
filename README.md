@@ -2,11 +2,13 @@
 
 This project was created for KPCB's Engineering Fellows application (2015). It includes two source files that implement the functionality of the fixed size hashmap and a test file to test the implementation of the hashmap.
 
+This project lives at: https://github.com/MattRMcFarland/HashMap.git
+
 ## Project Description:
 
 This hashmap is a fixed size hashmap implemented in C. A fixed size hashmap means that there is a limited number of entries that can be stored in the map. All of the elements are stored within the hashmap itself (as opposed to a hashmap where each collided entry is chained off of the head element in a given slot). So if the hashmap is full and a new element is added, a FAILURE occurs and the new element isn't added. Keys are only placed in the hashmap once, so if the Set function is invoked for a key that already exists in the HashMap, then that key's value will be updated with the new value as opposed to adding a new key-value pair.
 
-In order to manage the complexity of tracking and finding collisions that can occur within a fixed size hash map, this hashmap uses a doubly-linked list of HashNodes for a single slot to track collided elements. For example, if keys A, B, and C all hash to slot 13 (and are added in that order), then A will be located in slot 13. When B is added, B will collide with A in slot 13. So a free slot is found and then B is placed in that free slot. Then A's next element is pointed at B and B's previous element is pointed at A. When C is added and collides with A in slot 13, C will traverse down A's next list of collided nodes until the end of the list is found. A free slot for C is found and C is inserted there. C is then linked to the end of A's collided list. In this example, that means B's next element will point at C's slot and C's previous element will point at B's slot. 
+In order to manage the complexity of tracking and finding collisions that can occur within a fixed size hash map, this hashmap uses a doubly-linked list of HashNodes for a single slot to track it's collided elements. For example, if keys A, B, and C all hash to slot 13 (and are added in that order), then A will be located in slot 13. When B is added, B will collide with A in slot 13. So a free slot is found and then B is placed in that free slot. Then A's next element is pointed at B and B's previous element is pointed at A. When C is added and collides with A in slot 13, C will traverse down A's next list of collided nodes until the end of the list is found. A free slot for C is found and C is inserted there. C is then linked to the end of A's collided list. In this example, that means B's next element will point at C's slot and C's previous element will point at B's slot. 
 
 Continuing this example with A, B, and C, if a fourth element, D is added that hashes to the slot that B occupies, D will see that B is occupying D's intended slot. Since B was place there arbitrarily, and D belongs is B's slot, B is moved to a different, arbitrary free slot and D is placed in B's old location. B's adjacent neighbors in its linked list of next and previous elements are updated to relect B's new location. If element E is added that also maps to D's slot, then E will be placed in an arbitrary, free slot and attached to D's collision list.
 
@@ -78,11 +80,11 @@ RETURN VALUE:
 - Returns FAILURE if error occurs
 
 ### Get
-#### void * Get(HashMap * map, char * key)
+#### void * Get(HashMap * map, char * key, int * status_ptr)
 
 Get will retrieve the data element for a specified key if that key exists in the given HashMap. If the key does not exist in the HashMap, NULL is returned.
 
-Note - In the case that the data element was NULL, there is no way to discern between and error return value and the data element.
+Note - If a key has a NULL data value, that NULL will be returned by Get. The result of the status variable pointed at in the argument will state whether a value was successfully retrieved (SUCCESS) or if the key could not be found/error occurred. So if Get returns NULL and the status variable is SUCCESS, the key exists in the HashMap and is NULL. If Get returns NULL and status is FAILURE, then the key isn't in the HashMap.
 
 ARGUMENTS:
 
@@ -94,16 +96,17 @@ RETURN VALUE:
 - Returns NULL if key could not be located
 
 ### Delete
-#### void * Delete(HashMap * map, char * key)
+#### void * Delete(HashMap * map, char * key, int * status_ptr)
 
 Delete will remove the key-value pair from the HashMap for a given key if that key exists in the HashMap. If the key exists the key-value pair is removed, the data element for that key is returned.
 
-Note - In the case that the data element was NULL, there is no way to discern between and error return value and the data element.
+Note - If a key has a NULL data value, that NULL will be returned by Delete. The result of the status variable  pointed at in the argument will state whether a value was successfully retrieved (SUCCESS) or if the key could not be found/error occurred. So if Delete returns NULL and the status variable is SUCCESS, the key existed in the HashMap and the data was NULL. If Delete returns NULL and status is FAILURE, then the key wasn't in the HashMap.
 
 ARGUMENTS:
 
 - map: pointer to valid HashMap to delete entry from
 - key: string key to delete
+- status_ptr - pointer to variables where SUCCESS or FAILURE will be stored on return (if NULL, status won't be saved)
   
 RETURN VALUE:
 

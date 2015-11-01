@@ -7,7 +7,7 @@
  */
 
 /* INCLUDES */
-#include <stdio.h>
+#include <stdio.h>		// for I/O
 #include <stdlib.h>		// for malloc, mempcy
 #include <string.h> 	// for strcmp, strlen, strcpy 
 #include "hashmap.h"
@@ -178,8 +178,10 @@ int Set(HashMap * map, char * new_key, void * new_val) {
 
 /*
  * Returns the reference object for the given key or NULL if key doesn't exist
+ *
+ * If status pointer is given, saves SUCCESS or FAILURE there
  */
-void * Get(HashMap * map, char * key) {
+void * Get(HashMap * map, char * key, int * status_ptr) {
 
 	if (!map || !key) {
 		fprintf(stderr,"HashMap or key was null\n");
@@ -192,7 +194,7 @@ void * Get(HashMap * map, char * key) {
 	int found 					= 0;
 	void * to_return;
 
-	/* while key hasn't been found and there are entries at this slot */
+	/* while key hasn't been found and there are entries at this slot (ORDER MATTERS IN CHECKS) */
 	while (!found && (current_node != NULL) && (current_node->occupied == OCCUPIED)) {
 
 		/* If we found the matching entry, save the data */
@@ -209,13 +211,21 @@ void * Get(HashMap * map, char * key) {
 	if (!found)
 		to_return = NULL;
 
+	/* if a pointer to a status variable has been given, save status result */
+	if (status_ptr != NULL){
+		if (found)
+			*status_ptr = SUCCESS;
+		else
+			*status_ptr = FAILURE;
+	}	
+
 	return to_return;
 }
 
 /*
  * Deletes a key value pair and returns key's data element
  */
- void * Delete(HashMap * map, char * search_key){
+ void * Delete(HashMap * map, char * search_key, int * status_ptr){
 
  	if (!map){
  		fprintf(stderr,"cannot delete entry from null map\n");
@@ -234,8 +244,8 @@ void * Get(HashMap * map, char * key) {
 	int slot 					= hash % map->size;
 	current_node 				= &map->values[slot];
 
-	/* While there are unexamined entries at the search key slot */
-	while (!found && (current_node != NULL)) {					
+	/* While there are unexamined entries at the search key slot (ORDER MATTERS IN CHECKS) */
+	while (!found && (current_node != NULL) && (current_node->occupied == OCCUPIED)) {					
 
 		/* compare search key against entry */
 		if (strcmp(search_key, current_node->key) == 0) {	
@@ -266,6 +276,13 @@ void * Get(HashMap * map, char * key) {
 		/* if the erased entry was at the head of a list, place next element at head */
 		if (saved_next != NULL)
 			MoveValueTo(&map->values[slot], saved_next);	
+	}
+
+	if (status_ptr != NULL) {
+		if (found)
+			*status_ptr = SUCCESS;
+		else
+			*status_ptr = FAILURE;
 	}
 
 	return to_return;

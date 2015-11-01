@@ -36,6 +36,7 @@ int main(int argc, char ** argv) {
 
 	printf("This is the test program for Matt McFarland's HashMap.\n");
 	int ret_val = 0;
+	int status_var;
 
 	int arr[SIZE];
 	for (int i = 0; i < SIZE; i++){
@@ -47,29 +48,28 @@ int main(int argc, char ** argv) {
 		printf("testing map creation\n");
 
 	// regular size
-	HashMap * map0 = CreateMap(SIZE);
+	HashMap * map0 = CreateMap(SIZE);			// should work
 	if (!map0)
 		ret_val++;
 
 	// size 0
-	HashMap * map1 = CreateMap(0);
+	HashMap * map1 = CreateMap(0);				// should fail, cannot have 0 size
 	if (map1 != NULL)
 		ret_val++;
 
 	// size negative
-	HashMap * map2 = CreateMap(-6);
+	HashMap * map2 = CreateMap(-6);				// should fail, cannot have negative size
 	if (map2 != NULL)
 		ret_val++;
 
 	// size max_int
-	HashMap * map3 = CreateMap(INT_MAX);
+	HashMap * map3 = CreateMap(INT_MAX);		// should work for max size
 	if (map3 == NULL)
 		ret_val++;
 	else {
-		if (FAILURE == DeleteMap(map3))
+		if (FAILURE == DeleteMap(map3))			// test map deletion
 			ret_val++;
 	}
-	
 	
 	/* --- testing addition of values --- */
 	if (verbose)
@@ -86,6 +86,50 @@ int main(int argc, char ** argv) {
 	// add empty string
 	if (FAILURE == Set(map0, "", (void *)&arr[0]))		// should be able to set null string
 		ret_val++;
+
+	// add key with null data
+	if (FAILURE == Set(map0, "null val", NULL))			// should be valid
+		ret_val++;
+
+	/* test get and delete for data with NULL data */
+
+	if (verbose)
+		printf("testing Get and Delete for null data\n");
+
+	// test for key with null data element
+	if (NULL != Get(map0, "null val", &status_var))		// should return NULL data element
+		ret_val++;
+
+	if (status_var != SUCCESS)							// saved status should be SUCCESS
+		ret_val++;										
+
+	// test removal of key with null data element
+	if (NULL != Delete(map0, "null val", &status_var))	// should return NULL data element
+		ret_val++;
+
+	if (status_var != SUCCESS)							// saved status should be SUCCESS
+		ret_val++;
+
+	if (verbose)
+		printf("testing Get and Delete for keys not in map\n");
+
+	// test get with key that doesn't exist
+	if (NULL != Get(map0, "not in map", &status_var)) 	// should return NULL for failure
+		ret_val++;
+
+	if (status_var != FAILURE)							// failure because key isn't in map
+		ret_val++;
+
+	// test Delete with key that doesn't exist
+	if (NULL != Delete(map0, "not in map", &status_var)) 	// should return NULL for failure
+		ret_val++;
+
+	if (status_var != FAILURE)							// failure because key isn't in map
+		ret_val++;
+
+	/* test with full map and data collisions */
+	if (verbose)
+		printf("testing with regular strings\n");
 
 	// add a bunch of regular strings
 	char str[MAX_LEN];
@@ -114,7 +158,7 @@ int main(int argc, char ** argv) {
 	for (int i = 0; i < SIZE-1; i++) {
 
 		sprintf(str, "%d", i );	 						// use index strings for keys
-		if (&arr[i] != Get(map0, str))
+		if (&arr[i] != Get(map0, str, NULL))			// not using NULL data so no need to save status
 			ret_val++;
 	}
 
@@ -125,13 +169,13 @@ int main(int argc, char ** argv) {
 	for (int i = SIZE-1; i >= 0; i--) {
 		sprintf(str, "%d", i );	 						// use index strings for keys
 	
-		if (Get(map0,str)) {
+		if (NULL != Get(map0,str, NULL)) {
 
 			// if value is in map, delete it
 			if (verbose)
 				printf("removing str %s\n", str);
 
-			if (&arr[i] != Delete(map0, str))
+			if (&arr[i] != Delete(map0, str, NULL))		// not using NULL data so no need to save status
 				ret_val++;		
 		}
 	}
@@ -153,10 +197,10 @@ int main(int argc, char ** argv) {
 	if (verbose)
 		PrintMap(map0);									// "1" should be in slot 1 and "0" elsewhere
 
-	if ((void *)&arr[0] != Delete(map0, ""))			// delete "", "0" should get moved to slot 1
+	if ((void *)&arr[0] != Delete(map0, "", NULL))		// delete "", "0" should get moved to slot 1
 		ret_val++;
 
-	if ((void *)&main != Get(map0, "0"))				// should be able to get "0" still
+	if ((void *)&main != Get(map0, "0", NULL))			// should be able to get "0" still
 		ret_val++;
 
 	if (verbose)
