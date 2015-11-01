@@ -61,15 +61,6 @@ int main(int argc, char ** argv) {
 	HashMap * map2 = CreateMap(-6);				// should fail, cannot have negative size
 	if (map2 != NULL)
 		ret_val++;
-
-	// size max_int
-	HashMap * map3 = CreateMap(INT_MAX);		// should work for max size
-	if (map3 == NULL)
-		ret_val++;
-	else {
-		if (FAILURE == DeleteMap(map3))			// test map deletion
-			ret_val++;
-	}
 	
 	/* --- testing addition of values --- */
 	if (verbose)

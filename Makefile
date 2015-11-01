@@ -4,7 +4,6 @@
 # Compiler and compiler flags
 CC = gcc
 CFLAGS = -Wall -pedantic -std=c11
-#CFLAGS = -Wall -pedantic -std=c11 -m32
 
 # Source directory files
 SRC_DIR = ./src/

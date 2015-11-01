@@ -318,10 +318,20 @@ int DeleteMap(HashMap * map) {
 		return FAILURE;
 	}
 
+	/* free all keys left in map */
+	for (int i = 0; i < map->size; i++){
+		if (map->values[i].occupied == OCCUPIED && (map->values[i].key != NULL))
+			free(map->values[i].key);
+	}
+
+	/* free array of entries */
 	free(map->values);
+
+	/* free map */
 	map->values = NULL;
 	map->size = 0;
 	map->count = 0;
+	free(map);
 
 	return SUCCESS;
 }
