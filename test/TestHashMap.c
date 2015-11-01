@@ -13,13 +13,15 @@
 int main(int argc, char ** argv) {
 
 	int verbose = 0; 				// if 1, will print out detailed testing
-	FILE * new_stderr;
+	FILE * new_stderr = -1;
 
 	if (argc > 2) {
+
 		fprintf(stderr,"invalid arguments for TestHashMap.\n");
 		return FAILURE;
 
 	} else if (argc == 1) {			// quiet mode
+
 		new_stderr = fopen("/dev/null","w");
 		stderr = new_stderr;
 
@@ -214,6 +216,10 @@ int main(int argc, char ** argv) {
 		printf("All tests have passed!\n");
 	else
 		printf("Error occured in some tests (%d errors)\n", ret_val);
+
+	/* close rerouted stderr */
+	if (new_stderr != -1)
+		fclose(new_stderr);
 
 	/* if all tests succeeded, then return value will be zero */
 	return 0;
