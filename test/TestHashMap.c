@@ -75,11 +75,11 @@ int main(int argc, char ** argv) {
 		ret_val++;
 
 	// add empty string
-	if (FAILURE == Set(map0, "", (void *)&arr[0]))		// should be able to set null string
+	if (SUCCESS != Set(map0, "", (void *)&arr[0]))		// should be able to set null string
 		ret_val++;
 
 	// add key with null data
-	if (FAILURE == Set(map0, "null val", NULL))			// should be valid
+	if (SUCCESS != Set(map0, "null val", NULL))			// should be valid
 		ret_val++;
 
 	/* test get and delete for data with NULL data */
@@ -130,7 +130,7 @@ int main(int argc, char ** argv) {
 		if (verbose)
 			printf("adding str %s\n", str);
 
-		if (FAILURE == Set(map0, str, &arr[i]))
+		if (SUCCESS != Set(map0, str, &arr[i]))
 			ret_val++;
 	}
 
@@ -176,13 +176,13 @@ int main(int argc, char ** argv) {
 
 	/* if we remove the key "" (set at line 87 in this file) after adding "0", can we still find "0"? */
 
-	if (FAILURE == Set(map0, "0", (void *)&main))		// "0" collides with "" in slot 1
+	if (SUCCESS != Set(map0, "0", (void *)&main))		// "0" collides with "" in slot 1
 		ret_val++;
 
 	if (verbose)
 		PrintMap(map0);									// "0" should be in slot 2
 
-	if (FAILURE == Set(map0, "1", &ret_val))			// bump "0" out of slot 2
+	if (SUCCESS != Set(map0, "1", &ret_val))			// bump "0" out of slot 2
 		ret_val++;
 
 	if (verbose)
@@ -197,7 +197,7 @@ int main(int argc, char ** argv) {
 	if (verbose)
 		PrintMap(map0);									// "0" should be is slot 1 now
 	
-	if (FAILURE == DeleteMap(map0))
+	if (SUCCESS != DeleteMap(map0))
 		ret_val++;
 
 	/* end of testing */

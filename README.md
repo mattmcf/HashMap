@@ -130,7 +130,7 @@ RETURN VALUE:
 ### DeleteMap
 #### int DeleteMap(HashMap * map)
 
-DeleteMap will free the space allocated for the map if memory has been allocated to it. The size and count of the map are also reset to 0.
+DeleteMap will free the space allocated for a HashMap (all keys, HashNode array and map structure itself). Argument should be set to NULL after call to DeleteMap since it will point to invalid memory after all structures are freed.
 
 ARGUMENTS:
 

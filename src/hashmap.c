@@ -50,12 +50,18 @@ HashMap * CreateMap(int size) {
 	}
 
 	map->size = size;
+	map->count = 0;
 
+	/* make array of HashNodes */
 	map->values = (HashNode *)malloc(sizeof(HashNode) * size);
 	if (!map->values) {
 		fprintf(stderr,"malloc error\n");
 		return NULL;
 	}
+
+	/* initialize all slots to unoccupied */
+	for (int i = 0; i < map->size; i++)
+		map->values[i].occupied = UNOCCUPIED;
 
 	return map;
 }
