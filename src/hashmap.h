@@ -1,6 +1,6 @@
 /*
  * Matt McFarland
- * KPCM Engineering Fellows Application - October 2015
+ * KPCB Engineering Fellows Application - October 2015
  *
  * Hashmap.h contains functions for creating and storing
  * values in a fixed size hashmap where the key is a 
