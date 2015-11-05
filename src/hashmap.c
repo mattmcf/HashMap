@@ -1,6 +1,6 @@
 /*
  * Matt McFarland
- * KPCM Engineering Fellows Application - October 2015
+ * KPCB Engineering Fellows Application - October 2015
  *
  * HashMap.c implements the fixed size HashMap with string keys
  * described in HashMap.h
